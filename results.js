@@ -5,11 +5,11 @@
 // Get Gemini API Key from config
 // Set default API key if not already configured
 if (typeof CONFIG !== 'undefined' && !CONFIG.isConfigured()) {
-    CONFIG.setGeminiApiKey('AIzaSyAmCJGopWzqAEmscTjeZOnjJ8nDhVyGFpw');
+    CONFIG.setGeminiApiKey('AIzaSyBLWnaGGBwkrrgWJ3wBW5eAGFLGzFjgn10');
 }
 
 // Get the API key from config or use default
-const GEMINI_API_KEY = typeof CONFIG !== 'undefined' ? CONFIG.getGeminiApiKey().catch(() => null) : 'AIzaSyAmCJGopWzqAEmscTjeZOnjJ8nDhVyGFpw';
+const GEMINI_API_KEY = typeof CONFIG !== 'undefined' ? CONFIG.getGeminiApiKey().catch(() => null) : 'AIzaSyBLWnaGGBwkrrgWJ3wBW5eAGFLGzFjgn10';
 
 let assessmentData = null;
 let lastAnalysisData = null; // Store the analysis data for hospital search
