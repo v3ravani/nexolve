@@ -37,21 +37,31 @@ document.addEventListener('DOMContentLoaded', function() {
         console.warn('Could not load last analysis data from localStorage');
     }
     
-    // Setup analyze button
-    const analyzeBtn = document.getElementById('analyzeBtn');
-    if (analyzeBtn) {
-        analyzeBtn.addEventListener('click', handleAnalyze);
-    }
-    
-    // Setup find hospitals button
-    const findHospitalsBtn = document.getElementById('findHospitalsBtn');
-    if (findHospitalsBtn) {
-        findHospitalsBtn.addEventListener('click', handleFindHospitals);
-    }
-    
     // Setup download buttons
     setupDownloadButtons();
+    
+    // Auto-start all analysis if coming from form submission
+    const autoStart = localStorage.getItem('autoStartAllAnalysis');
+    if (autoStart === 'true') {
+        localStorage.removeItem('autoStartAllAnalysis');
+        // Start analysis after a short delay
+        setTimeout(() => {
+            startAllAnalysis();
+        }, 500);
+    }
 });
+
+// ============================================
+// Start All Analysis (Auto-triggered)
+// ============================================
+async function startAllAnalysis() {
+    try {
+        // Step 1: Run AI Analysis
+        await handleAnalyze(true);
+    } catch (error) {
+        console.error('Error in auto-analysis flow:', error);
+    }
+}
 
 // ============================================
 // Load Assessment Data
@@ -276,9 +286,11 @@ function displayBloodReportData() {
 // ============================================
 // Handle Analyze
 // ============================================
-async function handleAnalyze() {
+async function handleAnalyze(isAutoStart = false) {
     if (!assessmentData) {
-        alert('No assessment data found. Please complete an assessment first.');
+        if (!isAutoStart) {
+            alert('No assessment data found. Please complete an assessment first.');
+        }
         return;
     }
     
@@ -313,8 +325,10 @@ async function handleAnalyze() {
     loadingSection.style.display = 'block';
     resultsSection.style.display = 'none';
     errorSection.style.display = 'none';
-    analyzeBtn.disabled = true;
-    analyzeBtn.textContent = 'Analyzing...';
+    if (analyzeBtn) {
+        analyzeBtn.disabled = true;
+        analyzeBtn.textContent = 'Analyzing...';
+    }
     
     try {
         // System prompt for medical analysis
@@ -482,6 +496,13 @@ Keep the response professional, and informative.`;
         // Scroll to results
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         
+        // Auto-trigger hospital search if this was auto-started
+        if (isAutoStart) {
+            setTimeout(() => {
+                handleFindHospitals(true);
+            }, 2000);
+        }
+        
     } catch (error) {
         console.error('Gemini API Error:', error);
         errorMessage.textContent = `Error: ${error.message || 'Failed to analyze data. Please check your API key and try again.'}`;
@@ -489,8 +510,10 @@ Keep the response professional, and informative.`;
         loadingSection.style.display = 'none';
         resultsSection.style.display = 'none';
     } finally {
-        analyzeBtn.disabled = false;
-        analyzeBtn.textContent = 'Analyze with AI';
+        if (analyzeBtn) {
+            analyzeBtn.disabled = false;
+            analyzeBtn.textContent = 'Analyze with AI';
+        }
     }
 }
 
@@ -935,14 +958,18 @@ function createTagList(items) {
 // ============================================
 // Handle Find Hospitals
 // ============================================
-async function handleFindHospitals() {
+async function handleFindHospitals(isAutoStart = false) {
     if (!assessmentData) {
-        alert('No assessment data found. Please complete an assessment first.');
+        if (!isAutoStart) {
+            alert('No assessment data found. Please complete an assessment first.');
+        }
         return;
     }
     
     if (!lastAnalysisData) {
-        alert('Please run AI analysis first to get hospital recommendations.');
+        if (!isAutoStart) {
+            alert('Please run AI analysis first to get hospital recommendations.');
+        }
         return;
     }
     
@@ -1111,8 +1138,10 @@ Please suggest 3 appropriate healthcare facilities (hospitals, clinics, or gener
         loadingSection.style.display = 'none';
         resultsSection.style.display = 'none';
     } finally {
-        findHospitalsBtn.disabled = false;
-        findHospitalsBtn.textContent = 'Find Nearby Hospitals';
+        if (findHospitalsBtn) {
+            findHospitalsBtn.disabled = false;
+            findHospitalsBtn.textContent = 'Find Nearby Hospitals';
+        }
     }
 }
 

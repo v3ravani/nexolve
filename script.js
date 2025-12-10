@@ -895,6 +895,7 @@ function handleFormSubmit(e) {
     // Save to localStorage
     try {
         localStorage.setItem('assessmentData', JSON.stringify(data));
+        localStorage.setItem('autoStartAllAnalysis', 'true');
         console.log('Data saved to localStorage');
     } catch (error) {
         console.error('Error saving to localStorage:', error);
