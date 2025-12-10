@@ -823,6 +823,7 @@ h1, h2, h3, h4, h5, h6 {
     border-radius: 4px;
     background: var(--bg-gray);
     outline: none;
+    appearance: none;
     -webkit-appearance: none;
 }
 
@@ -1049,6 +1050,54 @@ h1, h2, h3, h4, h5, h6 {
 
 .results-actions .btn {
     min-width: 150px;
+}
+
+/* Results page scrollable analysis */
+.results-viewport {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+    border: none;
+}
+
+.results-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.results-toolbar .btn {
+    border-radius: 0.75rem;
+}
+
+.results-scroll {
+    max-height: 60vh;
+    min-height: 320px;
+    overflow: auto;
+    background: white;
+    border-radius: 1rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    padding: 1.25rem;
+}
+
+.results-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.results-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--primary-blue), var(--accent-teal));
+    border-radius: 8px;
+}
+
+.results-scroll::-webkit-scrollbar-track {
+    background: var(--bg-light);
+    border-radius: 8px;
 }
 
 .error-card {
