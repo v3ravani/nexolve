@@ -5,11 +5,11 @@
 // Get Gemini API Key from config
 // Set default API key if not already configured
 if (typeof CONFIG !== 'undefined' && !CONFIG.isConfigured()) {
-    CONFIG.setGeminiApiKey('AIzaSyDsAjv4OWqN0UHFdfIO1bQN1VMV-7y6i-c');
+    CONFIG.setGeminiApiKey('AIzaSyAmCJGopWzqAEmscTjeZOnjJ8nDhVyGFpw');
 }
 
 // Get the API key from config or use default
-const GEMINI_API_KEY = typeof CONFIG !== 'undefined' ? CONFIG.getGeminiApiKey().catch(() => null) : 'AIzaSyDsAjv4OWqN0UHFdfIO1bQN1VMV-7y6i-c';
+const GEMINI_API_KEY = typeof CONFIG !== 'undefined' ? CONFIG.getGeminiApiKey().catch(() => null) : 'AIzaSyAmCJGopWzqAEmscTjeZOnjJ8nDhVyGFpw';
 
 let assessmentData = null;
 let lastAnalysisData = null; // Store the analysis data for hospital search
@@ -459,6 +459,9 @@ Keep the response professional, and informative.`;
             displayStructuredAnalysis(analysisData);
             // Store analysis data for hospital search
             lastAnalysisData = analysisData;
+            
+            // Fetch lifestyle recommendations
+            fetchLifestyleRecommendations(analysisData);
         }
         
         // Save analysis to localStorage
@@ -490,6 +493,232 @@ Keep the response professional, and informative.`;
         analyzeBtn.textContent = 'Analyze with AI';
     }
 }
+
+// ============================================
+// Fetch Lifestyle Recommendations
+// ============================================
+async function fetchLifestyleRecommendations(analysisData) {
+    try {
+        let apiKey = null;
+        try {
+            if (typeof CONFIG !== 'undefined' && CONFIG.isConfigured()) {
+                apiKey = CONFIG.getGeminiApiKey();
+            } else if (GEMINI_API_KEY && typeof GEMINI_API_KEY === 'string') {
+                apiKey = GEMINI_API_KEY;
+            }
+        } catch (e) {
+            console.warn('Could not retrieve API key:', e);
+        }
+
+        if (!apiKey) {
+            console.warn('API key not available for lifestyle recommendations');
+            return;
+        }
+
+        const systemPrompt = `You are a health and wellness advisor. Your role is to provide personalized lifestyle recommendations based on health assessment data.
+
+IMPORTANT RULES:
+- Provide practical, actionable recommendations
+- Focus on prevention and wellness
+- Do NOT provide medical advice or diagnoses
+- Do NOT prescribe medications
+- Recommendations should be suitable for general wellness
+- Be encouraging and supportive
+
+Based on the health analysis provided, create personalized recommendations in this JSON format ONLY:
+{
+  "recommendedLifestyle": {
+    "sleepHabits": "",
+    "stressManagement": "",
+    "dailyRoutine": "",
+    "generalWellness": "",
+    "keyTips": []
+  },
+  "dietPlan": {
+    "overview": "",
+    "foodsToEmphasize": [],
+    "foodsToAvoid": [],
+    "mealSuggestions": [],
+    "hydration": "",
+    "supplements": ""
+  },
+  "exercisePlan": {
+    "overview": "",
+    "recommendedActivities": [],
+    "duration": "",
+    "frequency": "",
+    "precautions": "",
+    "progressionTips": []
+  }
+}`;
+
+        const userMessage = `Based on this health analysis data, provide personalized lifestyle, diet, and exercise recommendations:
+
+${JSON.stringify(analysisData, null, 2)}
+
+User Info:
+- Age: ${assessmentData?.personal?.age || 'Not specified'}
+- Primary Symptom: ${assessmentData?.symptoms?.primarySymptom || 'Not specified'}
+- Severity: ${assessmentData?.symptoms?.severity || 'Not specified'}`;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `${systemPrompt}\n\n${userMessage}`
+                    }]
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            console.warn('Failed to fetch lifestyle recommendations:', errorData.error?.message);
+            return;
+        }
+
+        const result = await response.json();
+        let recommendationsText = '';
+        if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+            recommendationsText = result.candidates[0].content.parts[0].text;
+        } else {
+            console.warn('No response content for lifestyle recommendations');
+            return;
+        }
+
+        // Parse JSON
+        let recommendationsData = null;
+        try {
+            let jsonText = recommendationsText.trim();
+            if (jsonText.startsWith('```json')) {
+                jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (jsonText.startsWith('```')) {
+                jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            recommendationsData = JSON.parse(jsonText);
+        } catch (parseError) {
+            console.warn('Could not parse lifestyle recommendations JSON:', parseError);
+            return;
+        }
+
+        // Display recommendations
+        if (recommendationsData) {
+            displayLifestyleRecommendations(recommendationsData);
+            // Save to localStorage
+            try {
+                localStorage.setItem('lastLifestyleRecommendations', JSON.stringify(recommendationsData));
+            } catch (e) {
+                console.warn('Could not save lifestyle recommendations to localStorage');
+            }
+        }
+
+    } catch (error) {
+        console.error('Error fetching lifestyle recommendations:', error);
+    }
+}
+
+// ============================================
+// Display Lifestyle Recommendations
+// ============================================
+function displayLifestyleRecommendations(data) {
+    const recommendationsContent = document.getElementById('recommendationsContent');
+    const recommendationsSection = document.getElementById('recommendationsSection');
+    
+    if (!recommendationsContent || !recommendationsSection || !data) return;
+
+    let html = '<div class="structured-analysis">';
+
+    // Recommended Lifestyle Card
+    if (data.recommendedLifestyle) {
+        const lifestyle = data.recommendedLifestyle;
+        const lifestyleItems = [
+            { label: 'Sleep Habits', value: lifestyle.sleepHabits },
+            { label: 'Stress Management', value: lifestyle.stressManagement },
+            { label: 'Daily Routine', value: lifestyle.dailyRoutine },
+            { label: 'General Wellness', value: lifestyle.generalWellness }
+        ];
+
+        if (lifestyle.keyTips && Array.isArray(lifestyle.keyTips) && lifestyle.keyTips.length > 0) {
+            lifestyleItems.push({
+                label: 'Key Tips',
+                value: createList(lifestyle.keyTips)
+            });
+        }
+
+        html += createCard('🌟 Recommended Lifestyle', 'recommended-lifestyle', lifestyleItems);
+    }
+
+    // Diet Plan Card
+    if (data.dietPlan) {
+        const diet = data.dietPlan;
+        const dietItems = [
+            { label: 'Overview', value: diet.overview },
+            { label: 'Hydration', value: diet.hydration },
+            { label: 'Supplements', value: diet.supplements }
+        ];
+
+        if (diet.foodsToEmphasize && Array.isArray(diet.foodsToEmphasize) && diet.foodsToEmphasize.length > 0) {
+            dietItems.push({
+                label: 'Foods To Emphasize',
+                value: createList(diet.foodsToEmphasize)
+            });
+        }
+
+        if (diet.foodsToAvoid && Array.isArray(diet.foodsToAvoid) && diet.foodsToAvoid.length > 0) {
+            dietItems.push({
+                label: 'Foods To Avoid',
+                value: createList(diet.foodsToAvoid)
+            });
+        }
+
+        if (diet.mealSuggestions && Array.isArray(diet.mealSuggestions) && diet.mealSuggestions.length > 0) {
+            dietItems.push({
+                label: 'Meal Suggestions',
+                value: createList(diet.mealSuggestions)
+            });
+        }
+
+        html += createCard('🥗 Diet Plan', 'diet-plan', dietItems);
+    }
+
+    // Exercise Plan Card
+    if (data.exercisePlan) {
+        const exercise = data.exercisePlan;
+        const exerciseItems = [
+            { label: 'Overview', value: exercise.overview },
+            { label: 'Duration', value: exercise.duration },
+            { label: 'Frequency', value: exercise.frequency },
+            { label: 'Precautions', value: exercise.precautions }
+        ];
+
+        if (exercise.recommendedActivities && Array.isArray(exercise.recommendedActivities) && exercise.recommendedActivities.length > 0) {
+            exerciseItems.push({
+                label: 'Recommended Activities',
+                value: createList(exercise.recommendedActivities)
+            });
+        }
+
+        if (exercise.progressionTips && Array.isArray(exercise.progressionTips) && exercise.progressionTips.length > 0) {
+            exerciseItems.push({
+                label: 'Progression Tips',
+                value: createList(exercise.progressionTips)
+            });
+        }
+
+        html += createCard('💪 Exercise Plan', 'exercise-plan', exerciseItems);
+    }
+
+    html += '</div>';
+    
+    // Display the recommendations
+    recommendationsContent.innerHTML = html;
+    recommendationsSection.style.display = 'block';
+}
+
 
 // ============================================
 // Display Structured Analysis

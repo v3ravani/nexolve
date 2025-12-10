@@ -38,10 +38,26 @@
                 <p>Comprehensive analysis of your health assessment data</p>
             </div>
 
+            <!-- Assessment Summary Section -->
+            <div id="summarySection" class="results-section">
+                <div class="section-card">
+                    <h2>📋 Assessment Summary</h2>
+                    <div id="summaryContent" class="summary-card"></div>
+                </div>
+            </div>
+
+            <!-- Blood Report Data Section -->
+            <div id="bloodReportSection" class="results-section" style="display: none;">
+                <div class="section-card">
+                    <h2>🩸 Blood Report Data</h2>
+                    <div id="bloodReportContent"></div>
+                </div>
+            </div>
+
             <!-- AI Analysis Section -->
             <div class="results-section">
                 <div class="section-card">
-                    <h2>AI Analysis</h2>
+                    <h2>🤖 AI Analysis</h2>
                     <p style="color: var(--text-gray); margin-bottom: 1rem;">
                         Get AI-powered insights about your health assessment data.
                     </p>
@@ -73,10 +89,20 @@
             <div id="resultsSection" class="results-section" style="display: none;">
                 <div class="section-card">
                     <div class="results-header-inner">
-                        <h2>Analysis Results</h2>
+                        <h2>✨ Analysis Results</h2>
                         <button id="downloadAnalysisBtn" class="btn btn-secondary">Download Analysis</button>
                     </div>
                     <div id="analysisContent" class="gemini-response"></div>
+                </div>
+            </div>
+
+            <!-- Lifestyle Recommendations Section -->
+            <div id="recommendationsSection" class="results-section" style="display: none;">
+                <div class="section-card">
+                    <div class="results-header-inner">
+                        <h2>💡 Personalized Recommendations</h2>
+                    </div>
+                    <div id="recommendationsContent" class="gemini-response"></div>
                 </div>
             </div>
 
@@ -104,22 +130,6 @@
             <div id="hospitalsErrorSection" class="results-section" style="display: none;">
                 <div class="section-card error-card">
                     <div class="gemini-error" id="hospitalsErrorMessage"></div>
-                </div>
-            </div>
-
-            <!-- Blood Report Data Section -->
-            <div id="bloodReportSection" class="results-section" style="display: none;">
-                <div class="section-card">
-                    <h2>🩸 Blood Report Data</h2>
-                    <div id="bloodReportContent"></div>
-                </div>
-            </div>
-
-            <!-- Assessment Summary Section -->
-            <div class="results-section">
-                <div class="section-card">
-                    <h2>Assessment Summary</h2>
-                    <div id="summaryContent" class="summary-card"></div>
                 </div>
             </div>
 
