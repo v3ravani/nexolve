@@ -38,17 +38,16 @@
                 <p>Comprehensive analysis of your health assessment data</p>
             </div>
 
-            <!-- API Key Section -->
+            <!-- AI Analysis Section -->
             <div class="results-section">
                 <div class="section-card">
-                    <h2>API Configuration</h2>
-                    <div class="api-key-input">
-                        <label for="geminiApiKey">Gemini API Key: <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: var(--primary-blue); font-size: 0.85rem;">(Get API Key)</a></label>
-                        <input type="password" id="geminiApiKey" placeholder="Enter your Gemini API key">
+                    <h2>AI Analysis</h2>
+                    <p style="color: var(--text-gray); margin-bottom: 1rem;">
+                        Get AI-powered insights about your health assessment data.
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                         <button id="analyzeBtn" class="btn btn-primary">Analyze with AI</button>
-                        <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
-                            Your API key is stored locally and never shared.
-                        </p>
+                        <button id="findHospitalsBtn" class="btn btn-secondary">Find Nearby Hospitals</button>
                     </div>
                 </div>
             </div>
@@ -78,6 +77,33 @@
                         <button id="downloadAnalysisBtn" class="btn btn-secondary">Download Analysis</button>
                     </div>
                     <div id="analysisContent" class="gemini-response"></div>
+                </div>
+            </div>
+
+            <!-- Hospital Recommendations Section -->
+            <div id="hospitalsSection" class="results-section" style="display: none;">
+                <div class="section-card">
+                    <div class="results-header-inner">
+                        <h2>🏥 Hospital Recommendations</h2>
+                    </div>
+                    <div id="hospitalsContent"></div>
+                </div>
+            </div>
+
+            <!-- Hospital Loading Section -->
+            <div id="hospitalsLoadingSection" class="results-section" style="display: none;">
+                <div class="section-card">
+                    <div class="gemini-loading">
+                        <div class="spinner"></div>
+                        <p>Finding nearby hospitals based on your symptoms...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hospital Error Section -->
+            <div id="hospitalsErrorSection" class="results-section" style="display: none;">
+                <div class="section-card error-card">
+                    <div class="gemini-error" id="hospitalsErrorMessage"></div>
                 </div>
             </div>
 

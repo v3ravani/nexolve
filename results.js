@@ -2,7 +2,17 @@
 // Results Page JavaScript
 // ============================================
 
+// Get Gemini API Key from config
+// Set default API key if not already configured
+if (typeof CONFIG !== 'undefined' && !CONFIG.isConfigured()) {
+    CONFIG.setGeminiApiKey('AIzaSyDsAjv4OWqN0UHFdfIO1bQN1VMV-7y6i-c');
+}
+
+// Get the API key from config or use default
+const GEMINI_API_KEY = typeof CONFIG !== 'undefined' ? CONFIG.getGeminiApiKey().catch(() => null) : 'AIzaSyDsAjv4OWqN0UHFdfIO1bQN1VMV-7y6i-c';
+
 let assessmentData = null;
+let lastAnalysisData = null; // Store the analysis data for hospital search
 
 // ============================================
 // DOM Content Loaded
@@ -17,21 +27,30 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display blood report data if available
     displayBloodReportData();
     
+    // Load last analysis data if available
+    try {
+        const storedAnalysisData = localStorage.getItem('lastAnalysisData');
+        if (storedAnalysisData) {
+            lastAnalysisData = JSON.parse(storedAnalysisData);
+        }
+    } catch (e) {
+        console.warn('Could not load last analysis data from localStorage');
+    }
+    
     // Setup analyze button
     const analyzeBtn = document.getElementById('analyzeBtn');
     if (analyzeBtn) {
         analyzeBtn.addEventListener('click', handleAnalyze);
     }
     
+    // Setup find hospitals button
+    const findHospitalsBtn = document.getElementById('findHospitalsBtn');
+    if (findHospitalsBtn) {
+        findHospitalsBtn.addEventListener('click', handleFindHospitals);
+    }
+    
     // Setup download buttons
     setupDownloadButtons();
-    
-    // Load saved API key if available
-    const savedApiKey = localStorage.getItem('geminiApiKey');
-    const apiKeyInput = document.getElementById('geminiApiKey');
-    if (savedApiKey && apiKeyInput) {
-        apiKeyInput.value = savedApiKey;
-    }
 });
 
 // ============================================
@@ -263,29 +282,31 @@ async function handleAnalyze() {
         return;
     }
     
-    const apiKeyInput = document.getElementById('geminiApiKey');
     const loadingSection = document.getElementById('loadingSection');
     const resultsSection = document.getElementById('resultsSection');
     const errorSection = document.getElementById('errorSection');
     const errorMessage = document.getElementById('errorMessage');
     const analyzeBtn = document.getElementById('analyzeBtn');
     
-    if (!apiKeyInput || !loadingSection || !resultsSection || !errorSection) return;
+    if (!loadingSection || !resultsSection || !errorSection) return;
     
-    const apiKey = apiKeyInput.value.trim();
-    
+    // Check if API key is configured
+    let apiKey = null;
+    try {
+        if (typeof CONFIG !== 'undefined' && CONFIG.isConfigured()) {
+            apiKey = CONFIG.getGeminiApiKey();
+        } else if (GEMINI_API_KEY && typeof GEMINI_API_KEY === 'string') {
+            apiKey = GEMINI_API_KEY;
+        }
+    } catch (e) {
+        console.warn('Could not retrieve API key:', e);
+    }
+
     if (!apiKey) {
-        errorMessage.textContent = 'Please enter your Gemini API key.';
+        errorMessage.textContent = 'API key not configured. Please configure your Gemini API key first.';
         errorSection.style.display = 'block';
         resultsSection.style.display = 'none';
         return;
-    }
-    
-    // Save API key
-    try {
-        localStorage.setItem('geminiApiKey', apiKey);
-    } catch (e) {
-        console.warn('Could not save API key to localStorage');
     }
     
     // Show loading, hide other sections
@@ -436,6 +457,8 @@ Keep the response professional, and informative.`;
         // Display the structured JSON in cards if parsed successfully
         if (analysisData) {
             displayStructuredAnalysis(analysisData);
+            // Store analysis data for hospital search
+            lastAnalysisData = analysisData;
         }
         
         // Save analysis to localStorage
@@ -678,6 +701,251 @@ function createList(items) {
 function createTagList(items) {
     if (!Array.isArray(items) || items.length === 0) return '';
     return `<div class="tag-list">${items.map(item => `<span class="tag">${item}</span>`).join('')}</div>`;
+}
+
+// ============================================
+// Handle Find Hospitals
+// ============================================
+async function handleFindHospitals() {
+    if (!assessmentData) {
+        alert('No assessment data found. Please complete an assessment first.');
+        return;
+    }
+    
+    if (!lastAnalysisData) {
+        alert('Please run AI analysis first to get hospital recommendations.');
+        return;
+    }
+    
+    const loadingSection = document.getElementById('hospitalsLoadingSection');
+    const resultsSection = document.getElementById('hospitalsSection');
+    const errorSection = document.getElementById('hospitalsErrorSection');
+    const errorMessage = document.getElementById('hospitalsErrorMessage');
+    const findHospitalsBtn = document.getElementById('findHospitalsBtn');
+    
+    if (!loadingSection || !resultsSection || !errorSection) return;
+    
+    // Check if API key is configured
+    let apiKey = null;
+    try {
+        if (typeof CONFIG !== 'undefined' && CONFIG.isConfigured()) {
+            apiKey = CONFIG.getGeminiApiKey();
+        } else if (GEMINI_API_KEY && typeof GEMINI_API_KEY === 'string') {
+            apiKey = GEMINI_API_KEY;
+        }
+    } catch (e) {
+        console.warn('Could not retrieve API key:', e);
+    }
+
+    if (!apiKey) {
+        errorMessage.textContent = 'API key not configured. Please configure your Gemini API key first.';
+        errorSection.style.display = 'block';
+        resultsSection.style.display = 'none';
+        return;
+    }
+    
+    // Get user location from assessment data
+    const userLocation = assessmentData.personal?.city || 'Unknown Location';
+    
+    // Show loading, hide other sections
+    loadingSection.style.display = 'block';
+    resultsSection.style.display = 'none';
+    errorSection.style.display = 'none';
+    findHospitalsBtn.disabled = true;
+    findHospitalsBtn.textContent = 'Searching...';
+    
+    try {
+        // System prompt for hospital recommendations
+        const systemPrompt = `You are a healthcare navigation assistant. Your role is to suggest appropriate hospitals, clinics, or general dispensaries based on the user's health condition and location.
+
+IMPORTANT RULES:
+- Suggest exactly 3 healthcare facilities
+- Prioritize facilities that match the user's condition and specialist needs
+- Consider the location provided
+- Include a mix of hospitals, clinics, and dispensaries as appropriate
+- Provide realistic facility names and addresses (you can use generic names if specific ones aren't available)
+- Base recommendations on the analysis data provided
+
+Return your answer STRICTLY in this JSON format only:
+{
+  "recommendations": [
+    {
+      "name": "",
+      "type": "hospital|clinic|dispensary",
+      "address": "",
+      "specialization": "",
+      "reason": "",
+      "distance": "",
+      "contact": ""
+    },
+    {
+      "name": "",
+      "type": "hospital|clinic|dispensary",
+      "address": "",
+      "specialization": "",
+      "reason": "",
+      "distance": "",
+      "contact": ""
+    },
+    {
+      "name": "",
+      "type": "hospital|clinic|dispensary",
+      "address": "",
+      "specialization": "",
+      "reason": "",
+      "distance": "",
+      "contact": ""
+    }
+  ],
+  "searchCriteria": {
+    "location": "",
+    "primaryCondition": "",
+    "recommendedSpecialist": ""
+  }
+}
+
+Keep the response professional and helpful.`;
+
+        // Prepare the user message with location and analysis data
+        const userMessage = `User Location: ${userLocation}
+
+Health Analysis Data:
+${JSON.stringify(lastAnalysisData, null, 2)}
+
+Please suggest 3 appropriate healthcare facilities (hospitals, clinics, or general dispensaries) based on the analysis and location.`;
+
+        // Call Gemini API
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `${systemPrompt}\n\n${userMessage}`
+                    }]
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        
+        // Extract the generated text
+        let hospitalsText = '';
+        if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+            hospitalsText = result.candidates[0].content.parts[0].text;
+        } else {
+            throw new Error('No response content received from API');
+        }
+
+        // Try to parse JSON from the response
+        let hospitalsData = null;
+        try {
+            // Remove markdown code blocks if present
+            let jsonText = hospitalsText.trim();
+            if (jsonText.startsWith('```json')) {
+                jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (jsonText.startsWith('```')) {
+                jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            hospitalsData = JSON.parse(jsonText);
+        } catch (parseError) {
+            console.error('Could not parse hospitals JSON:', parseError);
+            throw new Error('Invalid response format from API. Please try again.');
+        }
+
+        // Display the hospital recommendations
+        if (hospitalsData && hospitalsData.recommendations) {
+            displayHospitalRecommendations(hospitalsData);
+        } else {
+            throw new Error('Invalid response structure from API');
+        }
+        
+        // Show results, hide loading
+        resultsSection.style.display = 'block';
+        loadingSection.style.display = 'none';
+        errorSection.style.display = 'none';
+        
+        // Scroll to results
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+    } catch (error) {
+        console.error('Hospital Search Error:', error);
+        errorMessage.textContent = `Error: ${error.message || 'Failed to find hospitals. Please try again.'}`;
+        errorSection.style.display = 'block';
+        loadingSection.style.display = 'none';
+        resultsSection.style.display = 'none';
+    } finally {
+        findHospitalsBtn.disabled = false;
+        findHospitalsBtn.textContent = 'Find Nearby Hospitals';
+    }
+}
+
+// ============================================
+// Display Hospital Recommendations
+// ============================================
+function displayHospitalRecommendations(data) {
+    const hospitalsContent = document.getElementById('hospitalsContent');
+    if (!hospitalsContent || !data.recommendations) return;
+    
+    let html = '';
+    
+    // Display search criteria if available
+    if (data.searchCriteria) {
+        html += '<div class="hospital-search-criteria">';
+        html += '<h3>Search Criteria</h3>';
+        html += '<div class="criteria-grid">';
+        if (data.searchCriteria.location) {
+            html += `<div class="criteria-item"><strong>Location:</strong> ${data.searchCriteria.location}</div>`;
+        }
+        if (data.searchCriteria.primaryCondition) {
+            html += `<div class="criteria-item"><strong>Primary Condition:</strong> ${data.searchCriteria.primaryCondition}</div>`;
+        }
+        if (data.searchCriteria.recommendedSpecialist) {
+            html += `<div class="criteria-item"><strong>Recommended Specialist:</strong> ${data.searchCriteria.recommendedSpecialist}</div>`;
+        }
+        html += '</div></div>';
+    }
+    
+    // Display recommendations
+    html += '<div class="hospital-recommendations-grid">';
+    
+    data.recommendations.forEach((hospital, index) => {
+        const typeIcon = hospital.type === 'hospital' ? '🏥' : 
+                        hospital.type === 'clinic' ? '🏥' : 
+                        '💊';
+        const typeClass = hospital.type === 'hospital' ? 'hospital' : 
+                         hospital.type === 'clinic' ? 'clinic' : 
+                         'dispensary';
+        
+        html += `
+            <div class="hospital-card ${typeClass}">
+                <div class="hospital-card-header">
+                    <span class="hospital-icon">${typeIcon}</span>
+                    <div class="hospital-title">
+                        <h3>${hospital.name || 'Healthcare Facility'}</h3>
+                        <span class="hospital-type">${hospital.type || 'facility'}</span>
+                    </div>
+                </div>
+                <div class="hospital-card-body">
+                    ${hospital.specialization ? `<div class="hospital-item"><strong>Specialization:</strong> ${hospital.specialization}</div>` : ''}
+                    ${hospital.address ? `<div class="hospital-item"><strong>Address:</strong> ${hospital.address}</div>` : ''}
+                    ${hospital.distance ? `<div class="hospital-item"><strong>Distance:</strong> ${hospital.distance}</div>` : ''}
+                    ${hospital.contact ? `<div class="hospital-item"><strong>Contact:</strong> ${hospital.contact}</div>` : ''}
+                    ${hospital.reason ? `<div class="hospital-reason"><strong>Why this facility:</strong> ${hospital.reason}</div>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    html += '</div>';
+    hospitalsContent.innerHTML = html;
 }
 
 // ============================================

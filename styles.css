@@ -1255,6 +1255,186 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ============================================
+   Hospital Recommendations
+   ============================================ */
+.hospital-search-criteria {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+}
+
+.hospital-search-criteria h3 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text-dark);
+}
+
+.criteria-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.criteria-item {
+    color: var(--text-gray);
+    font-size: 0.95rem;
+}
+
+.criteria-item strong {
+    color: var(--text-dark);
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.hospital-recommendations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.hospital-card {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--border-color);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.hospital-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+.hospital-card.hospital {
+    border-left: 4px solid var(--primary-blue);
+}
+
+.hospital-card.clinic {
+    border-left: 4px solid var(--accent-teal);
+}
+
+.hospital-card.dispensary {
+    border-left: 4px solid #f59e0b;
+}
+
+.hospital-card-header {
+    background: var(--gradient-light);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.hospital-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.hospital-title {
+    flex: 1;
+}
+
+.hospital-title h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.hospital-type {
+    display: inline-block;
+    background: var(--primary-blue);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+}
+
+.hospital-card.clinic .hospital-type {
+    background: var(--accent-teal);
+}
+
+.hospital-card.dispensary .hospital-type {
+    background: #f59e0b;
+}
+
+.hospital-card-body {
+    padding: 1.5rem;
+}
+
+.hospital-item {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--bg-gray);
+}
+
+.hospital-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.hospital-item strong {
+    color: var(--text-dark);
+    font-size: 0.9rem;
+    display: block;
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+
+.hospital-item {
+    color: var(--text-gray);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.hospital-reason {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--bg-gray);
+    background: var(--bg-light);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: var(--text-gray);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.hospital-reason strong {
+    color: var(--primary-blue);
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    font-style: normal;
+}
+
+@media (max-width: 768px) {
+    .hospital-recommendations-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .criteria-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
    Modal / Success Screen
    ============================================ */
 .modal {
