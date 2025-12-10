@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Healthcare Assistance System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>HealthAI</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home" class="nav-link">Home</a></li>
+                <li><a href="#problem" class="nav-link">Problem</a></li>
+                <li><a href="#features" class="nav-link">Features</a></li>
+                <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+                <li><a href="assessment.html" class="nav-link nav-cta">Start Assessment</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    Your Intelligent Healthcare
+                    <span class="gradient-text">Assistant</span>
+                </h1>
+                <p class="hero-description">
+                    Get personalized health insights through our comprehensive AI-powered assessment system. 
+                    Answer detailed questions about your symptoms, medical history, and lifestyle to receive 
+                    intelligent health guidance tailored to your needs.
+                </p>
+                <div class="hero-buttons">
+                    <a href="assessment.html" class="btn btn-primary">
+                        <span>Start Assessment</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                    <a href="#how-it-works" class="btn btn-secondary">Learn More</a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="hero-card">
+                    <div class="card-icon">🏥</div>
+                    <h3>AI-Powered</h3>
+                    <p>Advanced assessment technology</p>
+                </div>
+                <div class="hero-card">
+                    <div class="card-icon">📊</div>
+                    <h3>Comprehensive</h3>
+                    <p>35+ detailed health questions</p>
+                </div>
+                <div class="hero-card">
+                    <div class="card-icon">🔒</div>
+                    <h3>Secure</h3>
+                    <p>Your data stays private</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section id="problem" class="section problem-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">The Problem We're Solving</h2>
+                <p class="section-subtitle">Healthcare accessibility and personalized guidance</p>
+            </div>
+            <div class="problem-grid">
+                <div class="problem-card">
+                    <div class="problem-icon">⏱️</div>
+                    <h3>Time Constraints</h3>
+                    <p>Long wait times and limited appointment availability make it difficult to get timely health advice when you need it most.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">🌐</div>
+                    <h3>Accessibility Issues</h3>
+                    <p>Many people lack easy access to healthcare professionals, especially in remote areas or during off-hours.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">📝</div>
+                    <h3>Incomplete Information</h3>
+                    <p>Traditional consultations often miss important details about symptoms, lifestyle, and medical history that could impact diagnosis.</p>
+                </div>
+                <div class="problem-card">
+                    <div class="problem-icon">💡</div>
+                    <h3>Lack of Preparation</h3>
+                    <p>Patients often forget important details during appointments, leading to less effective consultations.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="section features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Key Features</h2>
+                <p class="section-subtitle">Everything you need for comprehensive health assessment</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-number">01</div>
+                    <h3>Comprehensive Assessment</h3>
+                    <p>Our detailed 35-question form covers personal details, symptoms, medical history, lifestyle factors, and additional context to provide a complete health picture.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">02</div>
+                    <h3>Smart Organization</h3>
+                    <p>Questions are intelligently categorized into logical sections, making it easy to provide accurate and complete information.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">03</div>
+                    <h3>Data Export</h3>
+                    <p>Download your assessment data as a JSON file for your records or to share with healthcare professionals.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">04</div>
+                    <h3>Local Storage</h3>
+                    <p>Your assessment data is securely stored locally in your browser, ensuring privacy and allowing you to review it later.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">05</div>
+                    <h3>User-Friendly Interface</h3>
+                    <p>Clean, modern design with intuitive navigation and helpful tooltips guide you through the assessment process.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">06</div>
+                    <h3>Responsive Design</h3>
+                    <p>Access and complete your assessment from any device - desktop, tablet, or mobile - with a seamless experience.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="section how-it-works-section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">How It Works</h2>
+                <p class="section-subtitle">Simple steps to get your health assessment</p>
+            </div>
+            <div class="steps-container">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Start Assessment</h3>
+                        <p>Click the "Start Assessment" button to begin. You'll be taken to our comprehensive health assessment form.</p>
+                    </div>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Fill Out Details</h3>
+                        <p>Complete all sections of the form, including personal information, symptoms, medical history, lifestyle factors, and additional context.</p>
+                    </div>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Review & Submit</h3>
+                        <p>Review your responses for accuracy, then submit the form. All required fields will be validated before submission.</p>
+                    </div>
+                </div>
+                <div class="step-connector"></div>
+                <div class="step-item">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Get Your Data</h3>
+                        <p>View your assessment summary and download your data as a JSON file for your records or to share with healthcare providers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Safety Disclaimer Section -->
+    <section class="section disclaimer-section">
+        <div class="container">
+            <div class="disclaimer-card">
+                <div class="disclaimer-icon">⚠️</div>
+                <h2>Important Safety Disclaimer</h2>
+                <div class="disclaimer-content">
+                    <p><strong>This system is for informational purposes only and does not provide medical diagnosis, treatment, or professional medical advice.</strong></p>
+                    <ul>
+                        <li>Always consult with qualified healthcare professionals for medical concerns</li>
+                        <li>Do not use this system as a substitute for professional medical evaluation</li>
+                        <li>In case of medical emergencies, contact emergency services immediately</li>
+                        <li>The information provided is not intended to diagnose, treat, cure, or prevent any disease</li>
+                        <li>Individual results may vary, and this system should not replace regular medical check-ups</li>
+                    </ul>
+                    <p class="disclaimer-footer">By using this system, you acknowledge that you understand and agree to these terms.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <span>HealthAI</span>
+                    </div>
+                    <p>Intelligent Healthcare Assistance System</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#problem">Problem</a></li>
+                        <li><a href="#features">Features</a></li>
+                        <li><a href="#how-it-works">How It Works</a></li>
+                        <li><a href="assessment.html">Start Assessment</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#safety">Safety Disclaimer</a></li>
+                        <li><a href="#privacy">Privacy Policy</a></li>
+                        <li><a href="#terms">Terms of Service</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 HealthAI. All rights reserved. Built with care for your health.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+

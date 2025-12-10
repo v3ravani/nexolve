@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Health Analysis - HealthAI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>HealthAI</span>
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="assessment.html" class="nav-link">New Assessment</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Results Container -->
+    <main class="results-container">
+        <div class="container">
+            <div class="results-header">
+                <h1>🤖 AI Health Analysis</h1>
+                <p>Comprehensive analysis of your health assessment data</p>
+            </div>
+
+            <!-- API Key Section -->
+            <div class="results-section">
+                <div class="section-card">
+                    <h2>API Configuration</h2>
+                    <div class="api-key-input">
+                        <label for="geminiApiKey">Gemini API Key: <a href="https://makersuite.google.com/app/apikey" target="_blank" style="color: var(--primary-blue); font-size: 0.85rem;">(Get API Key)</a></label>
+                        <input type="password" id="geminiApiKey" placeholder="Enter your Gemini API key">
+                        <button id="analyzeBtn" class="btn btn-primary">Analyze with AI</button>
+                        <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 0.5rem;">
+                            Your API key is stored locally and never shared.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Section -->
+            <div id="loadingSection" class="results-section" style="display: none;">
+                <div class="section-card">
+                    <div class="gemini-loading">
+                        <div class="spinner"></div>
+                        <p>Analyzing your health data with AI...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Section -->
+            <div id="errorSection" class="results-section" style="display: none;">
+                <div class="section-card error-card">
+                    <div class="gemini-error" id="errorMessage"></div>
+                </div>
+            </div>
+
+            <!-- Analysis Results Section -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <div class="section-card">
+                    <div class="results-header-inner">
+                        <h2>Analysis Results</h2>
+                        <button id="downloadAnalysisBtn" class="btn btn-secondary">Download Analysis</button>
+                    </div>
+                    <div id="analysisContent" class="gemini-response"></div>
+                </div>
+            </div>
+
+            <!-- Blood Report Data Section -->
+            <div id="bloodReportSection" class="results-section" style="display: none;">
+                <div class="section-card">
+                    <h2>🩸 Blood Report Data</h2>
+                    <div id="bloodReportContent"></div>
+                </div>
+            </div>
+
+            <!-- Assessment Summary Section -->
+            <div class="results-section">
+                <div class="section-card">
+                    <h2>Assessment Summary</h2>
+                    <div id="summaryContent" class="summary-card"></div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="results-actions">
+                <a href="assessment.html" class="btn btn-secondary">New Assessment</a>
+                <button id="downloadJsonBtn" class="btn btn-primary">Download JSON Data</button>
+                <a href="index.html" class="btn btn-secondary">Back to Home</a>
+            </div>
+        </div>
+    </main>
+
+    <script src="results.js"></script>
+</body>
+</html>
+

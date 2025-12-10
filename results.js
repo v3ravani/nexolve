@@ -1,0 +1,811 @@
+// ============================================
+// Results Page JavaScript
+// ============================================
+
+let assessmentData = null;
+
+// ============================================
+// DOM Content Loaded
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Load assessment data from localStorage
+    loadAssessmentData();
+    
+    // Display summary
+    displaySummary();
+    
+    // Display blood report data if available
+    displayBloodReportData();
+    
+    // Setup analyze button
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    if (analyzeBtn) {
+        analyzeBtn.addEventListener('click', handleAnalyze);
+    }
+    
+    // Setup download buttons
+    setupDownloadButtons();
+    
+    // Load saved API key if available
+    const savedApiKey = localStorage.getItem('geminiApiKey');
+    const apiKeyInput = document.getElementById('geminiApiKey');
+    if (savedApiKey && apiKeyInput) {
+        apiKeyInput.value = savedApiKey;
+    }
+});
+
+// ============================================
+// Load Assessment Data
+// ============================================
+function loadAssessmentData() {
+    try {
+        const stored = localStorage.getItem('assessmentData');
+        if (stored) {
+            assessmentData = JSON.parse(stored);
+        } else {
+            // If no data, redirect to assessment page
+            window.location.href = 'assessment.html';
+        }
+    } catch (error) {
+        console.error('Error loading assessment data:', error);
+        window.location.href = 'assessment.html';
+    }
+}
+
+// ============================================
+// Display Summary
+// ============================================
+function displaySummary() {
+    const summaryContent = document.getElementById('summaryContent');
+    if (!summaryContent || !assessmentData) return;
+    
+    let summaryHTML = '';
+    
+    // Personal Details
+    if (assessmentData.personal) {
+        const pd = assessmentData.personal;
+        summaryHTML += '<h3>Personal Details</h3>';
+        summaryHTML += '<div class="summary-grid">';
+        if (pd.name) summaryHTML += `<div class="summary-item"><strong>Name:</strong> <span>${pd.name}</span></div>`;
+        if (pd.age) summaryHTML += `<div class="summary-item"><strong>Age:</strong> <span>${pd.age}</span></div>`;
+        if (pd.gender) summaryHTML += `<div class="summary-item"><strong>Gender:</strong> <span>${pd.gender}</span></div>`;
+        if (pd.height) summaryHTML += `<div class="summary-item"><strong>Height:</strong> <span>${pd.height} cm</span></div>`;
+        if (pd.weight) summaryHTML += `<div class="summary-item"><strong>Weight:</strong> <span>${pd.weight} kg</span></div>`;
+        if (pd.city) summaryHTML += `<div class="summary-item"><strong>City:</strong> <span>${pd.city}</span></div>`;
+        summaryHTML += '</div>';
+    }
+    
+    // Symptoms
+    if (assessmentData.symptoms) {
+        const sym = assessmentData.symptoms;
+        summaryHTML += '<h3>Symptoms</h3>';
+        summaryHTML += '<div class="summary-grid">';
+        if (sym.primarySymptom) summaryHTML += `<div class="summary-item"><strong>Primary Symptom:</strong> <span>${sym.primarySymptom}</span></div>`;
+        if (sym.duration) summaryHTML += `<div class="summary-item"><strong>Duration:</strong> <span>${sym.duration}</span></div>`;
+        if (sym.severity) summaryHTML += `<div class="summary-item"><strong>Severity:</strong> <span>${sym.severity}</span></div>`;
+        if (sym.painScale) summaryHTML += `<div class="summary-item"><strong>Pain Scale:</strong> <span>${sym.painScale}/10</span></div>`;
+        summaryHTML += '</div>';
+    }
+    
+    // Blood Report
+    if (assessmentData.bloodReport && assessmentData.bloodReport.pdfUploaded) {
+        summaryHTML += '<h3>Blood Report</h3>';
+        summaryHTML += '<div class="summary-grid">';
+        summaryHTML += `<div class="summary-item"><strong>PDF File:</strong> <span>${assessmentData.bloodReport.pdfFileName || 'Uploaded'}</span></div>`;
+        if (assessmentData.bloodReport.extractedData) {
+            const extracted = assessmentData.bloodReport.extractedData;
+            let valueCount = 0;
+            
+            if (extracted.hematology) {
+                const hemo = extracted.hematology;
+                if (hemo.hemoglobin?.value) valueCount++;
+                if (hemo.wbcCount?.value) valueCount++;
+                if (hemo.plateletCount?.value) valueCount++;
+            }
+            
+            if (extracted.differentialCount) {
+                const diff = extracted.differentialCount;
+                if (diff.neutrophils) valueCount++;
+                if (diff.lymphocytes) valueCount++;
+                if (diff.monocytes) valueCount++;
+                if (diff.eosinophils) valueCount++;
+                if (diff.basophils) valueCount++;
+            }
+            
+            if (valueCount > 0) {
+                summaryHTML += `<div class="summary-item"><strong>Extracted Values:</strong> <span>${valueCount} values found</span></div>`;
+            }
+        }
+        summaryHTML += '</div>';
+    }
+    
+    summaryContent.innerHTML = summaryHTML;
+}
+
+// ============================================
+// Display Blood Report Data
+// ============================================
+function displayBloodReportData() {
+    const bloodReportSection = document.getElementById('bloodReportSection');
+    const bloodReportContent = document.getElementById('bloodReportContent');
+    
+    if (!bloodReportSection || !bloodReportContent || !assessmentData) return;
+    
+    if (!assessmentData.bloodReport || !assessmentData.bloodReport.extractedData) {
+        bloodReportSection.style.display = 'none';
+        return;
+    }
+    
+    const extracted = assessmentData.bloodReport.extractedData;
+    let hasData = false;
+    let html = '';
+    
+    // Patient Details Card
+    if (extracted.patientDetails) {
+        const pd = extracted.patientDetails;
+        const patientItems = [];
+        if (pd.name) patientItems.push({ label: 'Name', value: pd.name });
+        if (pd.age) patientItems.push({ label: 'Age', value: pd.age });
+        if (pd.gender) patientItems.push({ label: 'Gender', value: pd.gender });
+        if (pd.reportDate) patientItems.push({ label: 'Report Date', value: pd.reportDate });
+        if (pd.labName) patientItems.push({ label: 'Lab Name', value: pd.labName });
+        
+        if (patientItems.length > 0) {
+            html += createCard('👤 Patient Details', 'patient-details', patientItems);
+            hasData = true;
+        }
+    }
+    
+    // Hematology Card
+    if (extracted.hematology) {
+        const hemo = extracted.hematology;
+        const hemoItems = [];
+        
+        if (hemo.hemoglobin?.value) {
+            hemoItems.push({ label: 'Hemoglobin', value: `${hemo.hemoglobin.value} ${hemo.hemoglobin.unit || ''}`.trim() });
+        }
+        if (hemo.rbcCount?.value) {
+            hemoItems.push({ label: 'RBC Count', value: `${hemo.rbcCount.value} ${hemo.rbcCount.unit || ''}`.trim() });
+        }
+        if (hemo.wbcCount?.value) {
+            hemoItems.push({ label: 'WBC Count', value: `${hemo.wbcCount.value} ${hemo.wbcCount.unit || ''}`.trim() });
+        }
+        if (hemo.plateletCount?.value) {
+            hemoItems.push({ label: 'Platelet Count', value: `${hemo.plateletCount.value} ${hemo.plateletCount.unit || ''}`.trim() });
+        }
+        if (hemo.hematocrit?.value) {
+            hemoItems.push({ label: 'Hematocrit (PCV)', value: `${hemo.hematocrit.value} ${hemo.hematocrit.unit || ''}`.trim() });
+        }
+        if (hemo.mcv?.value) {
+            hemoItems.push({ label: 'MCV', value: `${hemo.mcv.value} ${hemo.mcv.unit || ''}`.trim() });
+        }
+        if (hemo.mch?.value) {
+            hemoItems.push({ label: 'MCH', value: `${hemo.mch.value} ${hemo.mch.unit || ''}`.trim() });
+        }
+        if (hemo.mchc?.value) {
+            hemoItems.push({ label: 'MCHC', value: `${hemo.mchc.value} ${hemo.mchc.unit || ''}`.trim() });
+        }
+        
+        if (hemoItems.length > 0) {
+            html += createCard('🩸 Hematology', 'hematology', hemoItems);
+            hasData = true;
+        }
+    }
+    
+    // Differential Count Card
+    if (extracted.differentialCount) {
+        const diff = extracted.differentialCount;
+        const diffItems = [];
+        
+        if (diff.neutrophils) diffItems.push({ label: 'Neutrophils', value: `${diff.neutrophils}%` });
+        if (diff.lymphocytes) diffItems.push({ label: 'Lymphocytes', value: `${diff.lymphocytes}%` });
+        if (diff.monocytes) diffItems.push({ label: 'Monocytes', value: `${diff.monocytes}%` });
+        if (diff.eosinophils) diffItems.push({ label: 'Eosinophils', value: `${diff.eosinophils}%` });
+        if (diff.basophils) diffItems.push({ label: 'Basophils', value: `${diff.basophils}%` });
+        
+        if (diffItems.length > 0) {
+            html += createCard('📊 Differential Count', 'differential-count', diffItems);
+            hasData = true;
+        }
+    }
+    
+    // Blood Sugar Card
+    if (extracted.bloodSugar) {
+        const bs = extracted.bloodSugar;
+        const bsItems = [];
+        
+        if (bs.fasting?.value) {
+            bsItems.push({ label: 'Fasting Blood Sugar', value: `${bs.fasting.value} ${bs.fasting.unit || ''}`.trim() });
+        }
+        if (bs.random?.value) {
+            bsItems.push({ label: 'Random Blood Sugar', value: `${bs.random.value} ${bs.random.unit || ''}`.trim() });
+        }
+        if (bs.postPrandial?.value) {
+            bsItems.push({ label: 'Post-Prandial Blood Sugar', value: `${bs.postPrandial.value} ${bs.postPrandial.unit || ''}`.trim() });
+        }
+        
+        if (bsItems.length > 0) {
+            html += createCard('🍬 Blood Sugar', 'blood-sugar', bsItems);
+            hasData = true;
+        }
+    }
+    
+    // Lipid Profile Card
+    if (extracted.lipidProfile) {
+        const lipid = extracted.lipidProfile;
+        const lipidItems = [];
+        
+        if (lipid.totalCholesterol) lipidItems.push({ label: 'Total Cholesterol', value: `${lipid.totalCholesterol} mg/dL` });
+        if (lipid.hdl) lipidItems.push({ label: 'HDL', value: `${lipid.hdl} mg/dL` });
+        if (lipid.ldl) lipidItems.push({ label: 'LDL', value: `${lipid.ldl} mg/dL` });
+        if (lipid.triglycerides) lipidItems.push({ label: 'Triglycerides', value: `${lipid.triglycerides} mg/dL` });
+        
+        if (lipidItems.length > 0) {
+            html += createCard('💊 Lipid Profile', 'lipid-profile', lipidItems);
+            hasData = true;
+        }
+    }
+    
+    if (hasData) {
+        bloodReportContent.innerHTML = `<div class="structured-analysis">${html}</div>`;
+        bloodReportSection.style.display = 'block';
+    } else {
+        bloodReportSection.style.display = 'none';
+    }
+}
+
+// ============================================
+// Handle Analyze
+// ============================================
+async function handleAnalyze() {
+    if (!assessmentData) {
+        alert('No assessment data found. Please complete an assessment first.');
+        return;
+    }
+    
+    const apiKeyInput = document.getElementById('geminiApiKey');
+    const loadingSection = document.getElementById('loadingSection');
+    const resultsSection = document.getElementById('resultsSection');
+    const errorSection = document.getElementById('errorSection');
+    const errorMessage = document.getElementById('errorMessage');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    
+    if (!apiKeyInput || !loadingSection || !resultsSection || !errorSection) return;
+    
+    const apiKey = apiKeyInput.value.trim();
+    
+    if (!apiKey) {
+        errorMessage.textContent = 'Please enter your Gemini API key.';
+        errorSection.style.display = 'block';
+        resultsSection.style.display = 'none';
+        return;
+    }
+    
+    // Save API key
+    try {
+        localStorage.setItem('geminiApiKey', apiKey);
+    } catch (e) {
+        console.warn('Could not save API key to localStorage');
+    }
+    
+    // Show loading, hide other sections
+    loadingSection.style.display = 'block';
+    resultsSection.style.display = 'none';
+    errorSection.style.display = 'none';
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = 'Analyzing...';
+    
+    try {
+        // System prompt for medical analysis
+        const systemPrompt = `You are a medical information assistant. Your role is to analyze health assessment data and provide helpful, non-diagnostic insights.
+
+IMPORTANT RULES:
+- Do NOT provide medical diagnoses
+- Do NOT prescribe treatments or medications
+- Do NOT interpret lab values as normal/abnormal
+- Only provide general health information and observations
+- Always recommend consulting qualified healthcare professionals
+- Focus on patterns, correlations, and general health insights
+- Be clear that this is informational only
+
+Analyze the provided health assessment data and give answer strictly in this format only:
+{
+  "userSummary": {
+    "profileSummary": "",
+    "ageGroup": "",
+    "bmi": null,
+    "bmiCategory": "",
+    "lifestyleScore": "",
+    "dataQualityNotes": ""
+  },
+
+  "symptomAnalysis": {
+    "primarySymptomCategory": "",
+    "secondarySymptomInsights": "",
+    "durationClassification": "",
+    "severityLevel": "",
+    "painScaleInterpretation": "",
+    "patternInterpretation": "",
+    "progressionInterpretation": "",
+    "triggerInsights": "",
+    "reliefInsights": "",
+    "riskIncreasingFactors": ""
+  },
+
+  "concernMapping": {
+    "possibleConcernAreas": [],
+    "primarySystemInvolved": "",
+    "secondarySystems": [],
+    "symptomClusterExplanation": "",
+    "overlapInsights": ""
+  },
+
+  "riskAssessment": {
+    "overallRiskLevel": "",
+    "emergencyFlag": "",
+    "emergencyReasons": "",
+    "recommendedActionWindow": "",
+    "monitoringNext48Hours": "",
+    "situationsForEarlierHelp": "",
+    "immediateHelpIndicators": "",
+    "safetyNote": ""
+  },
+
+  "specialistGuidance": {
+    "primarySpecialist": "",
+    "secondarySpecialists": [],
+    "specialistReasoning": "",
+    "recommendedVisitType": "",
+    "questionsForDoctor": [],
+    "informationToTellDoctor": []
+  },
+
+  "hospitalNavigation": {
+    "isHospitalVisitNeeded": "",
+    "priorityLevel": "",
+    "departmentTags": [],
+    "searchKeywords": []
+  },
+
+  "bloodReportInsights": {
+    "summaryOfValues": "",
+    "valuesUsedInInterpretation": [],
+    "nonDiagnosticObservations": "",
+    "valuesToRecheck": [],
+    "simpleUserExplanation": "",
+    "reportCompleteness": ""
+  }
+}
+
+
+Keep the response professional, and informative.`;
+
+        // Prepare the user message with the JSON data
+        const userMessage = `Please analyze this health assessment data:\n\n${JSON.stringify(assessmentData, null, 2)}`;
+
+        // Call Gemini API
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{
+                        text: `${systemPrompt}\n\n${userMessage}`
+                    }]
+                }]
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `API Error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        
+        // Extract the generated text
+        let analysisText = '';
+        if (result.candidates && result.candidates[0] && result.candidates[0].content) {
+            analysisText = result.candidates[0].content.parts[0].text;
+        } else {
+            throw new Error('No response content received from API');
+        }
+
+        // Try to parse JSON from the response
+        let analysisData = null;
+        try {
+            // Remove markdown code blocks if present
+            let jsonText = analysisText.trim();
+            if (jsonText.startsWith('```json')) {
+                jsonText = jsonText.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+            } else if (jsonText.startsWith('```')) {
+                jsonText = jsonText.replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+            analysisData = JSON.parse(jsonText);
+        } catch (parseError) {
+            console.warn('Could not parse JSON, displaying as text:', parseError);
+            // If JSON parsing fails, display as formatted text
+            const analysisContent = document.getElementById('analysisContent');
+            if (analysisContent) {
+                analysisContent.innerHTML = `<div class="gemini-response-content">${formatGeminiResponse(analysisText)}</div>`;
+            }
+        }
+
+        // Display the structured JSON in cards if parsed successfully
+        if (analysisData) {
+            displayStructuredAnalysis(analysisData);
+        }
+        
+        // Save analysis to localStorage
+        try {
+            localStorage.setItem('lastAnalysis', analysisText);
+            if (analysisData) {
+                localStorage.setItem('lastAnalysisData', JSON.stringify(analysisData));
+            }
+        } catch (e) {
+            console.warn('Could not save analysis to localStorage');
+        }
+        
+        // Show results, hide loading
+        resultsSection.style.display = 'block';
+        loadingSection.style.display = 'none';
+        errorSection.style.display = 'none';
+        
+        // Scroll to results
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+    } catch (error) {
+        console.error('Gemini API Error:', error);
+        errorMessage.textContent = `Error: ${error.message || 'Failed to analyze data. Please check your API key and try again.'}`;
+        errorSection.style.display = 'block';
+        loadingSection.style.display = 'none';
+        resultsSection.style.display = 'none';
+    } finally {
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = 'Analyze with AI';
+    }
+}
+
+// ============================================
+// Display Structured Analysis
+// ============================================
+function displayStructuredAnalysis(data) {
+    const analysisContent = document.getElementById('analysisContent');
+    if (!analysisContent) return;
+    
+    let html = '<div class="structured-analysis">';
+    
+    // User Summary Card
+    if (data.userSummary) {
+        html += createCard('👤 User Summary', 'user-summary', [
+            { label: 'Profile Summary', value: data.userSummary.profileSummary },
+            { label: 'Age Group', value: data.userSummary.ageGroup },
+            { label: 'BMI', value: data.userSummary.bmi !== null ? data.userSummary.bmi : 'Not calculated' },
+            { label: 'BMI Category', value: data.userSummary.bmiCategory },
+            { label: 'Lifestyle Score', value: data.userSummary.lifestyleScore },
+            { label: 'Data Quality Notes', value: data.userSummary.dataQualityNotes }
+        ]);
+    }
+    
+    // Symptom Analysis Card
+    if (data.symptomAnalysis) {
+        html += createCard('🩺 Symptom Analysis', 'symptom-analysis', [
+            { label: 'Primary Symptom Category', value: data.symptomAnalysis.primarySymptomCategory },
+            { label: 'Secondary Symptom Insights', value: data.symptomAnalysis.secondarySymptomInsights },
+            { label: 'Duration Classification', value: data.symptomAnalysis.durationClassification },
+            { label: 'Severity Level', value: data.symptomAnalysis.severityLevel },
+            { label: 'Pain Scale Interpretation', value: data.symptomAnalysis.painScaleInterpretation },
+            { label: 'Pattern Interpretation', value: data.symptomAnalysis.patternInterpretation },
+            { label: 'Progression Interpretation', value: data.symptomAnalysis.progressionInterpretation },
+            { label: 'Trigger Insights', value: data.symptomAnalysis.triggerInsights },
+            { label: 'Relief Insights', value: data.symptomAnalysis.reliefInsights },
+            { label: 'Risk Increasing Factors', value: data.symptomAnalysis.riskIncreasingFactors }
+        ]);
+    }
+    
+    // Concern Mapping Card
+    if (data.concernMapping) {
+        const concernItems = [
+            { label: 'Primary System Involved', value: data.concernMapping.primarySystemInvolved },
+            { label: 'Symptom Cluster Explanation', value: data.concernMapping.symptomClusterExplanation },
+            { label: 'Overlap Insights', value: data.concernMapping.overlapInsights }
+        ];
+        
+        if (data.concernMapping.possibleConcernAreas && Array.isArray(data.concernMapping.possibleConcernAreas) && data.concernMapping.possibleConcernAreas.length > 0) {
+            concernItems.push({ 
+                label: 'Possible Concern Areas', 
+                value: createList(data.concernMapping.possibleConcernAreas) 
+            });
+        }
+        
+        if (data.concernMapping.secondarySystems && Array.isArray(data.concernMapping.secondarySystems) && data.concernMapping.secondarySystems.length > 0) {
+            concernItems.push({ 
+                label: 'Secondary Systems', 
+                value: createList(data.concernMapping.secondarySystems) 
+            });
+        }
+        
+        html += createCard('⚠️ Concern Mapping', 'concern-mapping', concernItems);
+    }
+    
+    // Risk Assessment Card (with special styling for risk level)
+    if (data.riskAssessment) {
+        const riskItems = [
+            { 
+                label: 'Overall Risk Level', 
+                value: data.riskAssessment.overallRiskLevel,
+                highlight: true,
+                riskLevel: data.riskAssessment.overallRiskLevel?.toLowerCase()
+            },
+            { label: 'Emergency Flag', value: data.riskAssessment.emergencyFlag },
+            { label: 'Emergency Reasons', value: data.riskAssessment.emergencyReasons },
+            { label: 'Recommended Action Window', value: data.riskAssessment.recommendedActionWindow },
+            { label: 'Monitoring Next 48 Hours', value: data.riskAssessment.monitoringNext48Hours },
+            { label: 'Situations For Earlier Help', value: data.riskAssessment.situationsForEarlierHelp },
+            { label: 'Immediate Help Indicators', value: data.riskAssessment.immediateHelpIndicators },
+            { label: 'Safety Note', value: data.riskAssessment.safetyNote }
+        ];
+        
+        html += createCard('🚨 Risk Assessment', 'risk-assessment', riskItems);
+    }
+    
+    // Specialist Guidance Card
+    if (data.specialistGuidance) {
+        const specialistItems = [
+            { label: 'Primary Specialist', value: data.specialistGuidance.primarySpecialist, highlight: true },
+            { label: 'Specialist Reasoning', value: data.specialistGuidance.specialistReasoning },
+            { label: 'Recommended Visit Type', value: data.specialistGuidance.recommendedVisitType }
+        ];
+        
+        if (data.specialistGuidance.secondarySpecialists && Array.isArray(data.specialistGuidance.secondarySpecialists) && data.specialistGuidance.secondarySpecialists.length > 0) {
+            specialistItems.push({ 
+                label: 'Secondary Specialists', 
+                value: createList(data.specialistGuidance.secondarySpecialists) 
+            });
+        }
+        
+        if (data.specialistGuidance.questionsForDoctor && Array.isArray(data.specialistGuidance.questionsForDoctor) && data.specialistGuidance.questionsForDoctor.length > 0) {
+            specialistItems.push({ 
+                label: 'Questions For Doctor', 
+                value: createList(data.specialistGuidance.questionsForDoctor) 
+            });
+        }
+        
+        if (data.specialistGuidance.informationToTellDoctor && Array.isArray(data.specialistGuidance.informationToTellDoctor) && data.specialistGuidance.informationToTellDoctor.length > 0) {
+            specialistItems.push({ 
+                label: 'Information To Tell Doctor', 
+                value: createList(data.specialistGuidance.informationToTellDoctor) 
+            });
+        }
+        
+        html += createCard('👨‍⚕️ Specialist Guidance', 'specialist-guidance', specialistItems);
+    }
+    
+    // Hospital Navigation Card
+    if (data.hospitalNavigation) {
+        const hospitalItems = [
+            { label: 'Is Hospital Visit Needed', value: data.hospitalNavigation.isHospitalVisitNeeded },
+            { label: 'Priority Level', value: data.hospitalNavigation.priorityLevel, highlight: true }
+        ];
+        
+        if (data.hospitalNavigation.departmentTags && Array.isArray(data.hospitalNavigation.departmentTags) && data.hospitalNavigation.departmentTags.length > 0) {
+            hospitalItems.push({ 
+                label: 'Department Tags', 
+                value: createTagList(data.hospitalNavigation.departmentTags) 
+            });
+        }
+        
+        if (data.hospitalNavigation.searchKeywords && Array.isArray(data.hospitalNavigation.searchKeywords) && data.hospitalNavigation.searchKeywords.length > 0) {
+            hospitalItems.push({ 
+                label: 'Search Keywords', 
+                value: createTagList(data.hospitalNavigation.searchKeywords) 
+            });
+        }
+        
+        html += createCard('🏥 Hospital Navigation', 'hospital-navigation', hospitalItems);
+    }
+    
+    // Blood Report Insights Card
+    if (data.bloodReportInsights) {
+        const bloodItems = [
+            { label: 'Summary of Values', value: data.bloodReportInsights.summaryOfValues },
+            { label: 'Non-Diagnostic Observations', value: data.bloodReportInsights.nonDiagnosticObservations },
+            { label: 'Simple User Explanation', value: data.bloodReportInsights.simpleUserExplanation },
+            { label: 'Report Completeness', value: data.bloodReportInsights.reportCompleteness }
+        ];
+        
+        if (data.bloodReportInsights.valuesUsedInInterpretation && Array.isArray(data.bloodReportInsights.valuesUsedInInterpretation) && data.bloodReportInsights.valuesUsedInInterpretation.length > 0) {
+            bloodItems.push({ 
+                label: 'Values Used In Interpretation', 
+                value: createList(data.bloodReportInsights.valuesUsedInInterpretation) 
+            });
+        }
+        
+        if (data.bloodReportInsights.valuesToRecheck && Array.isArray(data.bloodReportInsights.valuesToRecheck) && data.bloodReportInsights.valuesToRecheck.length > 0) {
+            bloodItems.push({ 
+                label: 'Values To Recheck', 
+                value: createList(data.bloodReportInsights.valuesToRecheck) 
+            });
+        }
+        
+        html += createCard('🩸 Blood Report Insights', 'blood-report-insights', bloodItems);
+    }
+    
+    html += '</div>';
+    analysisContent.innerHTML = html;
+}
+
+// ============================================
+// Create Card Helper
+// ============================================
+function createCard(title, className, items) {
+    if (!items || items.length === 0) return '';
+    
+    let cardHTML = `<div class="analysis-card ${className}">`;
+    cardHTML += `<div class="card-header"><h3>${title}</h3></div>`;
+    cardHTML += `<div class="card-body">`;
+    
+    items.forEach(item => {
+        if (item.value && item.value !== '' && item.value !== null) {
+            const valueClass = item.highlight ? 'highlight-value' : '';
+            const riskClass = item.riskLevel ? `risk-${item.riskLevel.replace(/\s+/g, '-')}` : '';
+            cardHTML += `
+                <div class="card-item ${valueClass} ${riskClass}">
+                    <div class="card-item-label">${item.label}</div>
+                    <div class="card-item-value">${item.value}</div>
+                </div>
+            `;
+        }
+    });
+    
+    cardHTML += `</div></div>`;
+    return cardHTML;
+}
+
+// ============================================
+// Create List Helper
+// ============================================
+function createList(items) {
+    if (!Array.isArray(items) || items.length === 0) return '';
+    return `<ul class="card-list">${items.map(item => `<li>${item}</li>`).join('')}</ul>`;
+}
+
+// ============================================
+// Create Tag List Helper
+// ============================================
+function createTagList(items) {
+    if (!Array.isArray(items) || items.length === 0) return '';
+    return `<div class="tag-list">${items.map(item => `<span class="tag">${item}</span>`).join('')}</div>`;
+}
+
+// ============================================
+// Format Gemini Response
+// ============================================
+function formatGeminiResponse(text) {
+    if (!text) return '<p>No response received.</p>';
+    
+    // Escape HTML first to prevent XSS
+    let formatted = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    
+    // Convert markdown-like formatting to HTML
+    formatted = formatted
+        // Bold text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        // Italic text
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        // Headers
+        .replace(/^### (.*$)/gim, '<h4>$1</h4>')
+        .replace(/^## (.*$)/gim, '<h3>$1</h3>')
+        .replace(/^# (.*$)/gim, '<h2>$1</h2>')
+        // Line breaks (preserve double newlines as paragraphs)
+        .replace(/\n\n+/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+    
+    // Split into paragraphs
+    const paragraphs = formatted.split('</p><p>');
+    let result = '';
+    
+    paragraphs.forEach((para, index) => {
+        if (index === 0 && !para.startsWith('<p>')) {
+            result += '<p>' + para;
+        } else if (index === paragraphs.length - 1 && !para.endsWith('</p>')) {
+            result += para + '</p>';
+        } else {
+            result += para;
+        }
+    });
+    
+    // Convert numbered/bulleted lists
+    result = result.replace(/(\d+)\.\s+(.+?)(?=<br>|$)/g, '<li>$2</li>');
+    result = result.replace(/[-*]\s+(.+?)(?=<br>|$)/g, '<li>$1</li>');
+    
+    // Wrap consecutive list items in ul tags
+    result = result.replace(/(<li>.*?<\/li>(?:<br>)?)+/g, (match) => {
+        return '<ul>' + match.replace(/<br>/g, '') + '</ul>';
+    });
+    
+    // Ensure proper paragraph wrapping
+    if (!result.startsWith('<p>') && !result.startsWith('<h')) {
+        result = '<p>' + result;
+    }
+    if (!result.endsWith('</p>') && !result.endsWith('</h')) {
+        result = result + '</p>';
+    }
+    
+    return result;
+}
+
+// ============================================
+// Setup Download Buttons
+// ============================================
+function setupDownloadButtons() {
+    // Download JSON button
+    const downloadJsonBtn = document.getElementById('downloadJsonBtn');
+    if (downloadJsonBtn && assessmentData) {
+        downloadJsonBtn.addEventListener('click', () => {
+            downloadJSON(assessmentData);
+        });
+    }
+    
+    // Download Analysis button
+    const downloadAnalysisBtn = document.getElementById('downloadAnalysisBtn');
+    if (downloadAnalysisBtn) {
+        downloadAnalysisBtn.addEventListener('click', () => {
+            const analysisText = localStorage.getItem('lastAnalysis');
+            if (analysisText) {
+                downloadTextFile(analysisText, 'health-analysis.txt');
+            } else {
+                alert('No analysis available to download.');
+            }
+        });
+    }
+}
+
+// ============================================
+// Download JSON
+// ============================================
+function downloadJSON(data) {
+    try {
+        const jsonString = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+        const filename = `health-assessment-${timestamp}.json`;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading JSON:', error);
+        alert('Error downloading file. Please try again.');
+    }
+}
+
+// ============================================
+// Download Text File
+// ============================================
+function downloadTextFile(text, filename) {
+    try {
+        const blob = new Blob([text], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    } catch (error) {
+        console.error('Error downloading file:', error);
+        alert('Error downloading file. Please try again.');
+    }
+}
+

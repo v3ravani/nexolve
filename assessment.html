@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Health Assessment - HealthAI</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="index.html">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>HealthAI</span>
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="index.html#features" class="nav-link">Features</a></li>
+                <li><a href="index.html#how-it-works" class="nav-link">How It Works</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Assessment Form -->
+    <main class="assessment-container">
+        <div class="container">
+            <div class="assessment-header">
+                <h1>Health Assessment Form</h1>
+                <p>Please fill out all sections to complete your comprehensive health assessment</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <form id="assessmentForm" class="assessment-form">
+                <!-- Section A: Personal Details -->
+                <section class="form-section" data-section="personal">
+                    <div class="section-header-form">
+                        <div class="section-icon">👤</div>
+                        <div>
+                            <h2>Personal Details</h2>
+                            <p>Basic information about yourself</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="name">Full Name <span class="required">*</span></label>
+                            <input type="text" id="name" name="name" required placeholder="Enter your full name">
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Age <span class="required">*</span></label>
+                            <select id="age" name="age" required>
+                                <option value="">Select age</option>
+                                <option value="0-12">0-12 years</option>
+                                <option value="13-17">13-17 years</option>
+                                <option value="18-25">18-25 years</option>
+                                <option value="26-35">26-35 years</option>
+                                <option value="36-45">36-45 years</option>
+                                <option value="46-55">46-55 years</option>
+                                <option value="56-65">56-65 years</option>
+                                <option value="66-75">66-75 years</option>
+                                <option value="76+">76+ years</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gender">Gender <span class="required">*</span></label>
+                            <select id="gender" name="gender" required>
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="height">Height (cm) <span class="required">*</span></label>
+                            <input type="number" id="height" name="height" required placeholder="e.g., 170" min="50" max="250">
+                        </div>
+                        <div class="form-group">
+                            <label for="weight">Weight (kg) <span class="required">*</span></label>
+                            <input type="number" id="weight" name="weight" required placeholder="e.g., 70" min="10" max="300">
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City/Location <span class="required">*</span></label>
+                            <input type="text" id="city" name="city" required placeholder="Enter your city">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section B: Symptom Details -->
+                <section class="form-section" data-section="symptoms">
+                    <div class="section-header-form">
+                        <div class="section-icon">🩺</div>
+                        <div>
+                            <h2>Symptom Details</h2>
+                            <p>Detailed information about your symptoms</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="primarySymptom">Primary Symptom <span class="required">*</span></label>
+                            <input type="text" id="primarySymptom" name="primarySymptom" required placeholder="Describe your main symptom">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="secondarySymptoms">Secondary Symptoms</label>
+                            <textarea id="secondarySymptoms" name="secondarySymptoms" rows="3" placeholder="List any additional symptoms you're experiencing"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="duration">Duration <span class="required">*</span></label>
+                            <select id="duration" name="duration" required>
+                                <option value="">Select duration</option>
+                                <option value="less-than-1-day">Less than 1 day</option>
+                                <option value="1-3-days">1-3 days</option>
+                                <option value="4-7-days">4-7 days</option>
+                                <option value="1-2-weeks">1-2 weeks</option>
+                                <option value="2-4-weeks">2-4 weeks</option>
+                                <option value="1-3-months">1-3 months</option>
+                                <option value="3-6-months">3-6 months</option>
+                                <option value="more-than-6-months">More than 6 months</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="severity">Severity <span class="required">*</span></label>
+                            <select id="severity" name="severity" required>
+                                <option value="">Select severity</option>
+                                <option value="mild">Mild</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="severe">Severe</option>
+                                <option value="very-severe">Very Severe</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="painScale">Pain Scale (0-10) <span class="required">*</span></label>
+                            <div class="slider-container">
+                                <input type="range" id="painScale" name="painScale" min="0" max="10" value="0" required>
+                                <div class="slider-labels">
+                                    <span>0 (No pain)</span>
+                                    <span id="painValue">0</span>
+                                    <span>10 (Severe pain)</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="onsetType">Onset Type <span class="required">*</span></label>
+                            <select id="onsetType" name="onsetType" required>
+                                <option value="">Select onset type</option>
+                                <option value="sudden">Sudden</option>
+                                <option value="gradual">Gradual</option>
+                                <option value="intermittent">Intermittent</option>
+                                <option value="unknown">Unknown</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="pattern">Pattern <span class="required">*</span></label>
+                            <select id="pattern" name="pattern" required>
+                                <option value="">Select pattern</option>
+                                <option value="constant">Constant</option>
+                                <option value="intermittent">Intermittent</option>
+                                <option value="worsening">Worsening</option>
+                                <option value="improving">Improving</option>
+                                <option value="fluctuating">Fluctuating</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="triggers">Triggers</label>
+                            <input type="text" id="triggers" name="triggers" placeholder="What triggers or worsens your symptoms?">
+                        </div>
+                        <div class="form-group">
+                            <label for="relievingFactors">Relieving Factors</label>
+                            <input type="text" id="relievingFactors" name="relievingFactors" placeholder="What helps relieve your symptoms?">
+                        </div>
+                        <div class="form-group">
+                            <label for="affectedArea">Affected Body Area <span class="required">*</span></label>
+                            <select id="affectedArea" name="affectedArea" required>
+                                <option value="">Select area</option>
+                                <option value="head">Head</option>
+                                <option value="neck">Neck</option>
+                                <option value="chest">Chest</option>
+                                <option value="abdomen">Abdomen</option>
+                                <option value="back">Back</option>
+                                <option value="arms">Arms</option>
+                                <option value="legs">Legs</option>
+                                <option value="joints">Joints</option>
+                                <option value="full-body">Full Body</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="progression">Progression <span class="required">*</span></label>
+                            <select id="progression" name="progression" required>
+                                <option value="">Select progression</option>
+                                <option value="improving">Improving</option>
+                                <option value="stable">Stable</option>
+                                <option value="worsening">Worsening</option>
+                                <option value="fluctuating">Fluctuating</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section C: Medical History -->
+                <section class="form-section" data-section="history">
+                    <div class="section-header-form">
+                        <div class="section-icon">📋</div>
+                        <div>
+                            <h2>Medical History</h2>
+                            <p>Your past and current medical information</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="preExistingConditions">Pre-existing Conditions <span class="required">*</span></label>
+                            <select id="preExistingConditions" name="preExistingConditions" required>
+                                <option value="">Select condition</option>
+                                <option value="none">None</option>
+                                <option value="diabetes">Diabetes</option>
+                                <option value="hypertension">Hypertension</option>
+                                <option value="heart-disease">Heart Disease</option>
+                                <option value="asthma">Asthma</option>
+                                <option value="arthritis">Arthritis</option>
+                                <option value="thyroid">Thyroid Disorders</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="otherConditionGroup" style="display: none;">
+                            <label for="otherCondition">Specify Other Condition</label>
+                            <input type="text" id="otherCondition" name="otherCondition" placeholder="Please specify">
+                        </div>
+                        <div class="form-group">
+                            <label for="pastSurgeries">Past Surgeries</label>
+                            <input type="text" id="pastSurgeries" name="pastSurgeries" placeholder="List any past surgeries">
+                        </div>
+                        <div class="form-group">
+                            <label for="familyHistory">Family Illness History <span class="required">*</span></label>
+                            <select id="familyHistory" name="familyHistory" required>
+                                <option value="">Select option</option>
+                                <option value="none">No significant family history</option>
+                                <option value="heart-disease">Heart Disease</option>
+                                <option value="diabetes">Diabetes</option>
+                                <option value="cancer">Cancer</option>
+                                <option value="hypertension">Hypertension</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="allergies">Allergies <span class="required">*</span></label>
+                            <select id="allergies" name="allergies" required>
+                                <option value="">Select option</option>
+                                <option value="none">No known allergies</option>
+                                <option value="medication">Medication</option>
+                                <option value="food">Food</option>
+                                <option value="environmental">Environmental</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="allergyDetailsGroup" style="display: none;">
+                            <label for="allergyDetails">Allergy Details</label>
+                            <input type="text" id="allergyDetails" name="allergyDetails" placeholder="Specify your allergies">
+                        </div>
+                        <div class="form-group">
+                            <label for="currentMedications">Current Medications</label>
+                            <input type="text" id="currentMedications" name="currentMedications" placeholder="List current medications">
+                        </div>
+                        <div class="form-group">
+                            <label for="previousSimilarSymptoms">Previous Similar Symptoms</label>
+                            <input type="text" id="previousSimilarSymptoms" name="previousSimilarSymptoms" placeholder="Have you experienced similar symptoms before?">
+                        </div>
+                        <div class="form-group">
+                            <label for="pregnancyStatus">Pregnancy Status</label>
+                            <select id="pregnancyStatus" name="pregnancyStatus">
+                                <option value="">Select option</option>
+                                <option value="not-applicable">Not Applicable</option>
+                                <option value="not-pregnant">Not Pregnant</option>
+                                <option value="pregnant">Pregnant</option>
+                                <option value="prefer-not-to-say">Prefer not to say</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section D: Lifestyle -->
+                <section class="form-section" data-section="lifestyle">
+                    <div class="section-header-form">
+                        <div class="section-icon">🏃</div>
+                        <div>
+                            <h2>Lifestyle</h2>
+                            <p>Your daily habits and lifestyle factors</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="dietPattern">Diet Pattern <span class="required">*</span></label>
+                            <select id="dietPattern" name="dietPattern" required>
+                                <option value="">Select diet pattern</option>
+                                <option value="balanced">Balanced</option>
+                                <option value="vegetarian">Vegetarian</option>
+                                <option value="vegan">Vegan</option>
+                                <option value="keto">Keto</option>
+                                <option value="mediterranean">Mediterranean</option>
+                                <option value="irregular">Irregular</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sleepHours">Sleep Hours (per night) <span class="required">*</span></label>
+                            <select id="sleepHours" name="sleepHours" required>
+                                <option value="">Select hours</option>
+                                <option value="less-than-4">Less than 4 hours</option>
+                                <option value="4-6">4-6 hours</option>
+                                <option value="6-8">6-8 hours</option>
+                                <option value="8-10">8-10 hours</option>
+                                <option value="more-than-10">More than 10 hours</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="waterIntake">Water Intake (per day) <span class="required">*</span></label>
+                            <select id="waterIntake" name="waterIntake" required>
+                                <option value="">Select intake</option>
+                                <option value="less-than-1L">Less than 1L</option>
+                                <option value="1-2L">1-2L</option>
+                                <option value="2-3L">2-3L</option>
+                                <option value="3-4L">3-4L</option>
+                                <option value="more-than-4L">More than 4L</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="smokingHabit">Smoking Habit <span class="required">*</span></label>
+                            <select id="smokingHabit" name="smokingHabit" required>
+                                <option value="">Select option</option>
+                                <option value="never">Never</option>
+                                <option value="former">Former smoker</option>
+                                <option value="occasional">Occasional</option>
+                                <option value="regular">Regular</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gymSupplements">Are you taking Gym supplements? <span class="required">*</span></label>
+                            <select id="gymSupplements" name="gymSupplements" required>
+                                <option value="">Select option</option>
+                                <option value="yes-ongoing">Yes (Ongoing) </option>
+                                <option value="yes-recent">Yes (Recent)</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="alcoholConsumption">Alcohol Consumption <span class="required">*</span></label>
+                            <select id="alcoholConsumption" name="alcoholConsumption" required>
+                                <option value="">Select option</option>
+                                <option value="never">Never</option>
+                                <option value="occasional">Occasional</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="regular">Regular</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="physicalActivity">Physical Activity Level <span class="required">*</span></label>
+                            <select id="physicalActivity" name="physicalActivity" required>
+                                <option value="">Select level</option>
+                                <option value="sedentary">Sedentary</option>
+                                <option value="light">Light (1-3 days/week)</option>
+                                <option value="moderate">Moderate (3-5 days/week)</option>
+                                <option value="active">Active (6-7 days/week)</option>
+                                <option value="very-active">Very Active (2+ hours/day)</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section E: Additional Context -->
+                <section class="form-section" data-section="context">
+                    <div class="section-header-form">
+                        <div class="section-icon">📝</div>
+                        <div>
+                            <h2>Additional Context</h2>
+                            <p>Any other relevant information</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="recentTravel">Recent Travel</label>
+                            <input type="text" id="recentTravel" name="recentTravel" placeholder="Any recent travel?">
+                        </div>
+                        <div class="form-group">
+                            <label for="exposureToSick">Exposure to Sick People <span class="required">*</span></label>
+                            <select id="exposureToSick" name="exposureToSick" required>
+                                <option value="">Select option</option>
+                                <option value="no">No</option>
+                                <option value="yes-recent">Yes, recently</option>
+                                <option value="yes-ongoing">Yes, ongoing</option>
+                                <option value="unsure">Unsure</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="stressLevel">Stress Level <span class="required">*</span></label>
+                            <select id="stressLevel" name="stressLevel" required>
+                                <option value="">Select level</option>
+                                <option value="low">Low</option>
+                                <option value="moderate">Moderate</option>
+                                <option value="high">High</option>
+                                <option value="very-high">Very High</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="additionalNotes">Additional Notes</label>
+                            <textarea id="additionalNotes" name="additionalNotes" rows="4" placeholder="Any other information you'd like to share..."></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section F: Blood Report PDF Upload -->
+                <section class="form-section" data-section="bloodReport">
+                    <div class="section-header-form">
+                        <div class="section-icon">🩸</div>
+                        <div>
+                            <h2>Blood Report (PDF Upload)</h2>
+                            <p>Upload your blood report PDF for automatic value extraction</p>
+                        </div>
+                    </div>
+                    <div class="form-grid">
+                        <div class="form-group full-width">
+                            <label for="bloodReportPdf">Upload blood report (PDF)</label>
+                            <input type="file" id="bloodReportPdf" name="bloodReportPdf" accept="application/pdf">
+                            <p id="pdfStatus" class="pdf-status">No file uploaded yet.</p>
+                        </div>
+                        <div id="autoExtractedValues" class="extracted-values-card" style="display: none;">
+                            <h3>Auto-extracted values</h3>
+                            <ul id="extractedList"></ul>
+                            <p class="disclaimer-text">
+                                <strong>Disclaimer:</strong> These values are automatically read from your report and are only for informational purposes. 
+                                This tool does not provide any medical diagnosis. Always consult a qualified doctor for interpretation of lab results.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Submit Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-submit">
+                        <span>Submit Assessment</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </main>
+
+    <!-- PDF.js Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+
