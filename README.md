@@ -2,7 +2,9 @@
 
 An **AI-powered healthcare triage and guidance web application** that helps users understand their symptoms, analyze uploaded medical reports, and receive structured, **non-diagnostic** guidance on next steps—such as recommended specialists, urgency level, and hospital navigation.
 
-> ⚠️ **Live:** sehatseva.netlify.app
+## Live Demo
+[Click here to view the live project](https://sehatseva.netlify.app)
+
 
 > ⚠️ **Disclaimer:** This system does **not** provide medical diagnosis or treatment. It is intended only for preliminary guidance and awareness. Always consult a qualified medical professional.
 
